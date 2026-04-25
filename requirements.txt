@@ -1,0 +1,5 @@
+opencv-python
+requests
+mediapipe
+ultralytics
+numpy
