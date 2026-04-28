@@ -50,3 +50,58 @@ python proctoring_client.py \
 ```bash
 python proctoring_client.py --help
 ```
+
+## Backend dashboard
+
+This branch also includes the member 3 server and proctor dashboard:
+
+- `backend/main.py`: FastAPI server on port `7777`.
+- `frontend/index.html`: proctor dashboard on port `4444`.
+- SQLite storage for students, exams, monitoring clients, and cheating events.
+- Student JWT login, heartbeat, and alert APIs.
+- Proctor/admin JWT login with role-based permissions.
+- WebSocket realtime dashboard updates at `/ws/dashboard`.
+
+### Run backend
+
+```bash
+pip install -r requirements.txt
+python -m uvicorn backend.main:app --host 0.0.0.0 --port 7777 --reload
+```
+
+### Run dashboard
+
+```bash
+python -m http.server 4444 --directory frontend
+```
+
+Open `http://localhost:4444`.
+
+Demo proctor accounts:
+
+```text
+admin / admin123      role: ADMIN
+giamthi / giamthi123  role: PROCTOR
+```
+
+Demo student account for the client:
+
+```text
+B22DCCN123 / hashed_password_string
+```
+
+Core client APIs:
+
+- `POST /api/v1/auth/login`
+- `POST /api/v1/monitoring/heartbeat`
+- `POST /api/v1/monitoring/alerts`
+
+Core proctor/admin APIs:
+
+- `POST /api/v1/proctors/login`
+- `GET /api/v1/monitoring/clients`
+- `GET /api/v1/monitoring/alerts`
+- `POST /api/v1/exams/{exam_id}/stop`
+- `POST /api/v1/exams/{exam_id}/continue`
+- `GET/POST/PUT/DELETE /api/v1/admin/students`
+- `GET/POST/PUT/DELETE /api/v1/admin/exams`
