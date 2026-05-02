@@ -3,20 +3,19 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Online Exam Monitoring</title>
+    <title>Exam Monitoring Dashboard</title>
     <style>
       :root {
-        color-scheme: light;
         font-family:
           Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
           "Segoe UI", sans-serif;
         --bg: #f4f6f8;
         --panel: #ffffff;
-        --ink: #182230;
+        --ink: #17202a;
         --muted: #667085;
-        --line: #d0d7e2;
+        --line: #d8dee8;
         --green: #0f766e;
-        --yellow: #b7791f;
+        --yellow: #a15c07;
         --red: #b42318;
         --blue: #2454a6;
       }
@@ -31,17 +30,18 @@
         color: var(--ink);
       }
 
-      body.auth-only .app-shell {
-        display: none;
-      }
-
-      body:not(.auth-only) .login-shell {
-        display: none;
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        padding: 18px 24px;
+        border-bottom: 1px solid var(--line);
+        background: var(--panel);
       }
 
       h1,
-      h2,
-      h3 {
+      h2 {
         margin: 0;
       }
 
@@ -53,73 +53,11 @@
         font-size: 17px;
       }
 
-      h3 {
-        font-size: 15px;
-      }
-
-      .login-shell {
-        display: grid;
-        min-height: 100vh;
-        place-items: center;
-        padding: 20px;
-      }
-
-      .login-panel {
-        width: min(420px, 100%);
-        background: var(--panel);
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        padding: 20px;
-      }
-
-      .login-panel h1 {
-        margin-bottom: 16px;
-      }
-
-      header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 16px;
-        padding: 16px 24px;
-        border-bottom: 1px solid var(--line);
-        background: var(--panel);
-      }
-
-      .top-right {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        flex-wrap: wrap;
-        justify-content: flex-end;
-      }
-
-      nav {
-        display: flex;
-        gap: 8px;
-        padding: 12px 24px 0;
-      }
-
-      .tab-btn {
-        border-color: var(--line);
-        background: #fff;
-        color: var(--ink);
-      }
-
-      .tab-btn.active {
-        border-color: var(--blue);
-        background: var(--blue);
-        color: #fff;
-      }
-
       main {
-        padding: 20px 24px 24px;
-      }
-
-      .monitor-grid {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) 380px;
+        grid-template-columns: minmax(0, 1fr) 360px;
         gap: 20px;
+        padding: 24px;
       }
 
       .stack {
@@ -135,10 +73,6 @@
         overflow: hidden;
       }
 
-      .panel.pad {
-        padding: 16px;
-      }
-
       .panel-head {
         display: flex;
         justify-content: space-between;
@@ -148,11 +82,29 @@
         border-bottom: 1px solid var(--line);
       }
 
-      .actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        align-items: center;
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        padding: 14px 16px;
+      }
+
+      .card span {
+        display: block;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .card strong {
+        display: block;
+        margin-top: 4px;
+        font-size: 24px;
       }
 
       button {
@@ -164,21 +116,6 @@
         padding: 0 12px;
         font-weight: 650;
         cursor: pointer;
-      }
-
-      button.secondary {
-        background: #fff;
-        color: var(--blue);
-      }
-
-      button.danger {
-        border-color: var(--red);
-        background: var(--red);
-      }
-
-      button:disabled {
-        cursor: not-allowed;
-        opacity: 0.55;
       }
 
       table {
@@ -226,17 +163,17 @@
         white-space: nowrap;
       }
 
-      .online {
+      .ok {
         background: #e7f8f3;
         color: var(--green);
       }
 
-      .warning {
+      .warn {
         background: #fff7e6;
         color: var(--yellow);
       }
 
-      .offline {
+      .bad {
         background: #feecec;
         color: var(--red);
       }
@@ -246,8 +183,23 @@
         color: #344054;
       }
 
-      aside {
-        align-self: start;
+      .status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        background: var(--red);
+      }
+
+      .dot.online {
+        background: var(--green);
       }
 
       .preview {
@@ -288,67 +240,6 @@
         text-align: center;
       }
 
-      .server-status {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        color: var(--muted);
-        font-size: 14px;
-      }
-
-      .dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 999px;
-        background: var(--red);
-      }
-
-      .dot.ok {
-        background: var(--green);
-      }
-
-      .form-grid {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(140px, 1fr));
-        gap: 12px;
-        align-items: end;
-      }
-
-      label {
-        display: grid;
-        gap: 6px;
-        color: var(--muted);
-        font-size: 13px;
-        font-weight: 650;
-      }
-
-      input,
-      select {
-        width: 100%;
-        min-height: 38px;
-        border: 1px solid var(--line);
-        border-radius: 6px;
-        background: #fff;
-        color: var(--ink);
-        padding: 0 10px;
-        font: inherit;
-      }
-
-      .hidden {
-        display: none !important;
-      }
-
-      .notice {
-        min-height: 20px;
-        margin-top: 10px;
-        color: var(--red);
-        font-size: 14px;
-      }
-
-      .muted {
-        color: var(--muted);
-      }
-
       @media (max-width: 980px) {
         header,
         .panel-head {
@@ -357,272 +248,130 @@
         }
 
         main {
+          grid-template-columns: 1fr;
           padding: 16px;
         }
 
-        nav {
-          padding: 12px 16px 0;
-          overflow-x: auto;
-        }
-
-        .monitor-grid {
-          grid-template-columns: 1fr;
-        }
-
-        .form-grid {
+        .cards {
           grid-template-columns: 1fr;
         }
 
         table {
-          min-width: 860px;
+          min-width: 760px;
         }
       }
     </style>
   </head>
-  <body class="auth-only">
-    <section class="login-shell">
-      <form id="login-form" class="login-panel">
-        <h1>Giám thị đăng nhập</h1>
-        <label>
-          Tài khoản
-          <input id="username" autocomplete="username" value="admin" />
-        </label>
-        <label>
-          Mật khẩu
-          <input id="password" type="password" autocomplete="current-password" value="admin123" />
-        </label>
-        <button type="submit">Đăng nhập</button>
-        <div id="login-error" class="notice"></div>
-      </form>
-    </section>
+  <body>
+    <header>
+      <div>
+        <h1>Exam Monitoring Dashboard</h1>
+      </div>
+      <div class="status">
+        <span id="server-dot" class="dot"></span>
+        <span id="server-text">Đang kiểm tra backend</span>
+      </div>
+    </header>
 
-    <section class="app-shell">
-      <header>
-        <h1>Giám sát thi trực tuyến</h1>
-        <div class="top-right">
-          <div class="server-status">
-            <span id="server-dot" class="dot"></span>
-            <span id="server-text">WebSocket chưa kết nối</span>
+    <main>
+      <div class="stack">
+        <section class="cards">
+          <div class="card">
+            <span>Máy gửi heartbeat</span>
+            <strong id="heartbeat-count">0</strong>
           </div>
-          <span id="user-label" class="badge neutral"></span>
-          <button id="logout-btn" type="button" class="secondary">Đăng xuất</button>
+          <div class="card">
+            <span>Tổng cảnh báo</span>
+            <strong id="alert-count">0</strong>
+          </div>
+          <div class="card">
+            <span>Cập nhật cuối</span>
+            <strong id="last-update">-</strong>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Trạng thái máy thí sinh</h2>
+            <button id="refresh-btn" type="button">Tải lại</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Thí sinh</th>
+                  <th>Webcam</th>
+                  <th>Camera hông</th>
+                  <th>Heartbeat gần nhất</th>
+                  <th>Trạng thái</th>
+                </tr>
+              </thead>
+              <tbody id="heartbeat-body"></tbody>
+            </table>
+          </div>
+          <div id="heartbeat-empty" class="empty" hidden>Chưa có heartbeat nào.</div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Cảnh báo vi phạm</h2>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Thí sinh</th>
+                  <th>Camera</th>
+                  <th>Vi phạm</th>
+                  <th>Đối tượng</th>
+                  <th>Độ tin cậy</th>
+                  <th>Thời gian</th>
+                </tr>
+              </thead>
+              <tbody id="alerts-body"></tbody>
+            </table>
+          </div>
+          <div id="alerts-empty" class="empty" hidden>Chưa có cảnh báo vi phạm.</div>
+        </section>
+      </div>
+
+      <aside class="panel">
+        <div class="panel-head">
+          <h2>Bằng chứng</h2>
         </div>
-      </header>
-
-      <nav>
-        <button class="tab-btn active" type="button" data-tab="monitor-tab">Giám sát</button>
-        <button class="tab-btn" type="button" data-tab="students-tab">Sinh viên</button>
-        <button class="tab-btn" type="button" data-tab="exams-tab">Kỳ thi</button>
-      </nav>
-
-      <main>
-        <section id="monitor-tab" class="tab-view">
-          <div class="monitor-grid">
-            <div class="stack">
-              <section class="panel">
-                <div class="panel-head">
-                  <h2>Máy thí sinh đang kết nối</h2>
-                  <div class="actions">
-                    <select id="exam-action-select"></select>
-                    <button id="continue-btn" type="button" class="secondary">Tiếp tục thi</button>
-                    <button id="stop-btn" type="button" class="danger">Dừng thi</button>
-                  </div>
-                </div>
-                <div class="table-wrap">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Thí sinh</th>
-                        <th>Bài thi</th>
-                        <th>Trạng thái</th>
-                        <th>Webcam</th>
-                        <th>Camera hông</th>
-                        <th>Lần heartbeat cuối</th>
-                        <th>Lệnh server</th>
-                      </tr>
-                    </thead>
-                    <tbody id="clients-body"></tbody>
-                  </table>
-                </div>
-                <div id="clients-empty" class="empty" hidden>Chưa có máy thí sinh gửi heartbeat.</div>
-              </section>
-
-              <section class="panel">
-                <div class="panel-head">
-                  <h2>Cảnh báo vi phạm</h2>
-                </div>
-                <div class="table-wrap">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>ID</th>
-                        <th>Thí sinh</th>
-                        <th>Camera</th>
-                        <th>Vi phạm</th>
-                        <th>Đối tượng</th>
-                        <th>Độ tin cậy</th>
-                        <th>Thời gian</th>
-                      </tr>
-                    </thead>
-                    <tbody id="alerts-body"></tbody>
-                  </table>
-                </div>
-                <div id="alerts-empty" class="empty" hidden>Chưa có cảnh báo vi phạm.</div>
-              </section>
-            </div>
-
-            <aside class="panel">
-              <div class="panel-head">
-                <h2>Bằng chứng</h2>
-              </div>
-              <img id="evidence" class="preview" alt="Ảnh bằng chứng" />
-              <div id="selected-meta" class="meta"></div>
-            </aside>
-          </div>
-        </section>
-
-        <section id="students-tab" class="tab-view hidden">
-          <section class="panel pad">
-            <form id="student-form" class="form-grid">
-              <label>
-                Mã sinh viên
-                <input id="student-id-input" required />
-              </label>
-              <label>
-                Họ tên
-                <input id="student-name-input" />
-              </label>
-              <label>
-                Mật khẩu
-                <input id="student-password-input" type="password" />
-              </label>
-              <div class="actions">
-                <button id="save-student-btn" type="submit">Lưu</button>
-                <button id="reset-student-btn" type="button" class="secondary">Làm mới</button>
-              </div>
-            </form>
-            <div id="student-notice" class="notice"></div>
-          </section>
-          <section class="panel">
-            <div class="panel-head">
-              <h2>Danh sách sinh viên</h2>
-            </div>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Mã sinh viên</th>
-                    <th>Họ tên</th>
-                    <th>Ngày tạo</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody id="students-body"></tbody>
-              </table>
-            </div>
-          </section>
-        </section>
-
-        <section id="exams-tab" class="tab-view hidden">
-          <section class="panel pad">
-            <form id="exam-form" class="form-grid">
-              <label>
-                Mã kỳ thi
-                <input id="exam-id-input" required />
-              </label>
-              <label>
-                Tên kỳ thi
-                <input id="exam-title-input" />
-              </label>
-              <label>
-                Trạng thái
-                <select id="exam-status-input">
-                  <option value="scheduled">scheduled</option>
-                  <option value="active">active</option>
-                  <option value="finished">finished</option>
-                </select>
-              </label>
-              <div class="actions">
-                <button id="save-exam-btn" type="submit">Lưu</button>
-                <button id="reset-exam-btn" type="button" class="secondary">Làm mới</button>
-              </div>
-            </form>
-            <div id="exam-notice" class="notice"></div>
-          </section>
-          <section class="panel">
-            <div class="panel-head">
-              <h2>Danh sách kỳ thi</h2>
-            </div>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Mã kỳ thi</th>
-                    <th>Tên kỳ thi</th>
-                    <th>Trạng thái</th>
-                    <th>Lệnh</th>
-                    <th>Cập nhật</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody id="exams-body"></tbody>
-              </table>
-            </div>
-          </section>
-        </section>
-      </main>
-    </section>
+        <img id="evidence" class="preview" alt="Ảnh bằng chứng" />
+        <div id="selected-meta" class="meta"></div>
+      </aside>
+    </main>
 
     <script>
       const API_BASE = "http://localhost:7777";
-      const WS_BASE = "ws://localhost:7777";
       const state = {
-        token: localStorage.getItem("proctor_token") || "",
-        user: JSON.parse(localStorage.getItem("proctor_user") || "null"),
-        clients: [],
+        heartbeats: [],
         alerts: [],
-        students: [],
-        exams: [],
         selectedAlertId: null,
-        socket: null,
       };
 
       const elements = {
-        loginForm: document.querySelector("#login-form"),
-        loginError: document.querySelector("#login-error"),
-        username: document.querySelector("#username"),
-        password: document.querySelector("#password"),
         serverDot: document.querySelector("#server-dot"),
         serverText: document.querySelector("#server-text"),
-        userLabel: document.querySelector("#user-label"),
-        clientsBody: document.querySelector("#clients-body"),
+        heartbeatCount: document.querySelector("#heartbeat-count"),
+        alertCount: document.querySelector("#alert-count"),
+        lastUpdate: document.querySelector("#last-update"),
+        heartbeatBody: document.querySelector("#heartbeat-body"),
         alertsBody: document.querySelector("#alerts-body"),
-        studentsBody: document.querySelector("#students-body"),
-        examsBody: document.querySelector("#exams-body"),
-        clientsEmpty: document.querySelector("#clients-empty"),
+        heartbeatEmpty: document.querySelector("#heartbeat-empty"),
         alertsEmpty: document.querySelector("#alerts-empty"),
         evidence: document.querySelector("#evidence"),
         selectedMeta: document.querySelector("#selected-meta"),
-        examActionSelect: document.querySelector("#exam-action-select"),
-        studentForm: document.querySelector("#student-form"),
-        studentNotice: document.querySelector("#student-notice"),
-        studentId: document.querySelector("#student-id-input"),
-        studentName: document.querySelector("#student-name-input"),
-        studentPassword: document.querySelector("#student-password-input"),
-        examForm: document.querySelector("#exam-form"),
-        examNotice: document.querySelector("#exam-notice"),
-        examId: document.querySelector("#exam-id-input"),
-        examTitle: document.querySelector("#exam-title-input"),
-        examStatus: document.querySelector("#exam-status-input"),
       };
 
-      function isAdmin() {
-        return state.user?.role === "ADMIN";
-      }
-
-      function setServerStatus(online, text) {
-        elements.serverDot.classList.toggle("ok", online);
-        elements.serverText.textContent = text;
+      function setServerStatus(online) {
+        elements.serverDot.classList.toggle("online", online);
+        elements.serverText.textContent = online
+          ? "Backend đang chạy ở localhost:7777"
+          : "Không kết nối được backend";
       }
 
       function formatDate(value) {
@@ -633,123 +382,55 @@
         }).format(new Date(value));
       }
 
-      function statusClass(value) {
-        if (value === "ONLINE") return "online";
-        if (value === "WARNING") return "warning";
-        if (value === "OFFLINE") return "offline";
-        return "neutral";
+      function secondsSince(value) {
+        return Math.max(0, Math.round((Date.now() - new Date(value).getTime()) / 1000));
       }
 
-      function statusLabel(value) {
-        if (value === "ONLINE") return "Xanh";
-        if (value === "WARNING") return "Vàng";
-        if (value === "OFFLINE") return "Đỏ";
-        return value;
+      function heartbeatStatus(row) {
+        const seconds = secondsSince(row.updated_at);
+        if (seconds <= 10) return { label: `Online - ${seconds}s`, className: "ok" };
+        if (seconds <= 30) return { label: `Chậm - ${seconds}s`, className: "warn" };
+        return { label: `Mất tín hiệu - ${seconds}s`, className: "bad" };
       }
 
       function detectMimeType(base64) {
+        if (!base64) return "";
         if (base64.startsWith("/9j/")) return "image/jpeg";
         if (base64.startsWith("iVBOR")) return "image/png";
         if (base64.startsWith("R0lGOD")) return "image/gif";
         return "image/jpeg";
       }
 
-      async function fetchJson(path, options = {}) {
-        const headers = {
-          "Content-Type": "application/json",
-          ...(options.headers || {}),
-        };
-        if (state.token) {
-          headers.Authorization = `Bearer ${state.token}`;
-        }
-        const response = await fetch(`${API_BASE}${path}`, { ...options, headers });
-        if (!response.ok) {
-          const text = await response.text();
-          throw new Error(text || `HTTP ${response.status}`);
-        }
-        return response.json();
-      }
+      function renderHeartbeats() {
+        elements.heartbeatBody.innerHTML = "";
+        elements.heartbeatEmpty.hidden = state.heartbeats.length > 0;
 
-      function showApp() {
-        document.body.classList.toggle("auth-only", !state.token);
-        if (state.user) {
-          elements.userLabel.textContent = `${state.user.full_name || state.user.username} - ${state.user.role}`;
-        }
-        document.querySelectorAll("#student-form input, #student-form button, #exam-form input, #exam-form select, #exam-form button").forEach((node) => {
-          node.disabled = !isAdmin();
-        });
-      }
-
-      function connectDashboardSocket() {
-        if (!state.token) return;
-        if (state.socket) {
-          state.socket.close();
-        }
-        const socket = new WebSocket(`${WS_BASE}/ws/dashboard?token=${encodeURIComponent(state.token)}`);
-        state.socket = socket;
-
-        socket.addEventListener("open", () => {
-          setServerStatus(true, "WebSocket realtime đã kết nối");
-        });
-
-        socket.addEventListener("message", (event) => {
-          const payload = JSON.parse(event.data);
-          if (payload.type !== "snapshot") return;
-          state.clients = payload.clients;
-          state.alerts = payload.alerts;
-          state.students = payload.students;
-          state.exams = payload.exams;
-          renderAll();
-        });
-
-        socket.addEventListener("close", () => {
-          if (!state.token) return;
-          setServerStatus(false, "WebSocket mất kết nối");
-          window.setTimeout(connectDashboardSocket, 2000);
-        });
-      }
-
-      function renderAll() {
-        renderClients();
-        renderAlerts();
-        renderStudents();
-        renderExams();
-        renderExamOptions();
-      }
-
-      function renderClients() {
-        elements.clientsBody.innerHTML = "";
-        elements.clientsEmpty.hidden = state.clients.length > 0;
-
-        for (const client of state.clients) {
-          const row = document.createElement("tr");
-          row.innerHTML = `
-            <td>${client.student_id}</td>
-            <td>${client.exam_id}</td>
-            <td>
-              <span class="badge ${statusClass(client.connection_status)}">
-                ${statusLabel(client.connection_status)} - ${client.seconds_since_heartbeat}s
-              </span>
-            </td>
-            <td><span class="badge neutral">${client.camera_front_status}</span></td>
-            <td><span class="badge neutral">${client.camera_side_status}</span></td>
-            <td>${formatDate(client.last_heartbeat_at)}</td>
-            <td><span class="badge neutral">${client.server_action}</span></td>
+        for (const row of state.heartbeats) {
+          const status = heartbeatStatus(row);
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${row.student_id}</td>
+            <td><span class="badge neutral">${row.camera_front_status}</span></td>
+            <td><span class="badge neutral">${row.camera_side_status}</span></td>
+            <td>${formatDate(row.updated_at)}</td>
+            <td><span class="badge ${status.className}">${status.label}</span></td>
           `;
-          elements.clientsBody.appendChild(row);
+          elements.heartbeatBody.appendChild(tr);
         }
       }
 
       function selectAlert(alert) {
         state.selectedAlertId = alert.alert_id;
         const mimeType = detectMimeType(alert.evidence_image_base64);
-        elements.evidence.src = `data:${mimeType};base64,${alert.evidence_image_base64}`;
+        elements.evidence.src = mimeType
+          ? `data:${mimeType};base64,${alert.evidence_image_base64}`
+          : "";
         elements.selectedMeta.innerHTML = `
           <div><span>Mã cảnh báo</span><strong>#${alert.alert_id}</strong></div>
           <div><span>Thí sinh</span><strong>${alert.student_id}</strong></div>
           <div><span>Loại vi phạm</span><strong>${alert.violation_type}</strong></div>
           <div><span>Đối tượng</span><strong>${alert.detected_objects.join(", ") || "-"}</strong></div>
-          <div><span>Nguồn</span><strong>${alert.source}</strong></div>
+          <div><span>Camera</span><strong>${alert.camera_source}</strong></div>
         `;
       }
 
@@ -779,223 +460,31 @@
         }
       }
 
-      function renderStudents() {
-        elements.studentsBody.innerHTML = "";
-        for (const student of state.students) {
-          const row = document.createElement("tr");
-          row.innerHTML = `
-            <td>${student.student_id}</td>
-            <td>${student.full_name || "-"}</td>
-            <td>${formatDate(student.created_at)}</td>
-            <td>
-              <button type="button" class="secondary" data-edit-student="${student.student_id}">Sửa</button>
-              <button type="button" class="danger" data-delete-student="${student.student_id}" ${isAdmin() ? "" : "disabled"}>Xóa</button>
-            </td>
-          `;
-          elements.studentsBody.appendChild(row);
-        }
-      }
-
-      function renderExams() {
-        elements.examsBody.innerHTML = "";
-        for (const exam of state.exams) {
-          const row = document.createElement("tr");
-          row.innerHTML = `
-            <td>${exam.exam_id}</td>
-            <td>${exam.title || "-"}</td>
-            <td><span class="badge neutral">${exam.status}</span></td>
-            <td><span class="badge neutral">${exam.action}</span></td>
-            <td>${formatDate(exam.updated_at)}</td>
-            <td>
-              <button type="button" class="secondary" data-edit-exam="${exam.exam_id}">Sửa</button>
-              <button type="button" class="danger" data-delete-exam="${exam.exam_id}" ${isAdmin() ? "" : "disabled"}>Xóa</button>
-            </td>
-          `;
-          elements.examsBody.appendChild(row);
-        }
-      }
-
-      function renderExamOptions() {
-        const selected = elements.examActionSelect.value;
-        elements.examActionSelect.innerHTML = "";
-        for (const exam of state.exams) {
-          const option = document.createElement("option");
-          option.value = exam.exam_id;
-          option.textContent = exam.exam_id;
-          elements.examActionSelect.appendChild(option);
-        }
-        if (state.exams.some((exam) => exam.exam_id === selected)) {
-          elements.examActionSelect.value = selected;
-        }
-      }
-
-      async function login(event) {
-        event.preventDefault();
-        elements.loginError.textContent = "";
+      async function loadDashboard() {
         try {
-          const payload = {
-            username: elements.username.value.trim(),
-            password: elements.password.value,
-          };
-          const result = await fetchJson("/api/v1/proctors/login", {
-            method: "POST",
-            body: JSON.stringify(payload),
-          });
-          state.token = result.data.token;
-          state.user = result.data;
-          localStorage.setItem("proctor_token", state.token);
-          localStorage.setItem("proctor_user", JSON.stringify(state.user));
-          showApp();
-          connectDashboardSocket();
+          const response = await fetch(`${API_BASE}/dashboard/data`);
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          const data = await response.json();
+          state.heartbeats = data.heartbeats;
+          state.alerts = data.alerts;
+          elements.heartbeatCount.textContent = String(state.heartbeats.length);
+          elements.alertCount.textContent = String(state.alerts.length);
+          elements.lastUpdate.textContent = new Intl.DateTimeFormat("vi-VN", {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+          }).format(new Date());
+          setServerStatus(true);
+          renderHeartbeats();
+          renderAlerts();
         } catch (error) {
-          elements.loginError.textContent = "Đăng nhập thất bại";
+          setServerStatus(false);
         }
       }
 
-      function logout() {
-        state.token = "";
-        state.user = null;
-        localStorage.removeItem("proctor_token");
-        localStorage.removeItem("proctor_user");
-        if (state.socket) {
-          state.socket.close();
-        }
-        showApp();
-      }
-
-      async function setExamAction(action) {
-        const examId = elements.examActionSelect.value || "CS101_FINAL";
-        const path =
-          action === "STOP_EXAM"
-            ? `/api/v1/exams/${encodeURIComponent(examId)}/stop`
-            : `/api/v1/exams/${encodeURIComponent(examId)}/continue`;
-        await fetchJson(path, { method: "POST" });
-      }
-
-      async function saveStudent(event) {
-        event.preventDefault();
-        if (!isAdmin()) return;
-        elements.studentNotice.textContent = "";
-        const studentId = elements.studentId.value.trim();
-        const existing = state.students.some((student) => student.student_id === studentId);
-        const payload = {
-          full_name: elements.studentName.value.trim(),
-        };
-        if (elements.studentPassword.value) {
-          payload.password = elements.studentPassword.value;
-        }
-        if (!existing && !payload.password) {
-          elements.studentNotice.textContent = "Cần nhập mật khẩu cho sinh viên mới";
-          return;
-        }
-        await fetchJson(
-          existing
-            ? `/api/v1/admin/students/${encodeURIComponent(studentId)}`
-            : "/api/v1/admin/students",
-          {
-            method: existing ? "PUT" : "POST",
-            body: JSON.stringify(existing ? payload : { ...payload, student_id: studentId }),
-          },
-        );
-        resetStudentForm();
-      }
-
-      function resetStudentForm() {
-        elements.studentId.value = "";
-        elements.studentName.value = "";
-        elements.studentPassword.value = "";
-        elements.studentId.disabled = !isAdmin();
-      }
-
-      async function saveExam(event) {
-        event.preventDefault();
-        if (!isAdmin()) return;
-        elements.examNotice.textContent = "";
-        const examId = elements.examId.value.trim();
-        const existing = state.exams.some((exam) => exam.exam_id === examId);
-        const payload = {
-          title: elements.examTitle.value.trim(),
-          status: elements.examStatus.value,
-        };
-        await fetchJson(
-          existing
-            ? `/api/v1/admin/exams/${encodeURIComponent(examId)}`
-            : "/api/v1/admin/exams",
-          {
-            method: existing ? "PUT" : "POST",
-            body: JSON.stringify(existing ? payload : { ...payload, exam_id: examId }),
-          },
-        );
-        resetExamForm();
-      }
-
-      function resetExamForm() {
-        elements.examId.value = "";
-        elements.examTitle.value = "";
-        elements.examStatus.value = "scheduled";
-        elements.examId.disabled = !isAdmin();
-      }
-
-      document.querySelectorAll(".tab-btn").forEach((button) => {
-        button.addEventListener("click", () => {
-          document.querySelectorAll(".tab-btn").forEach((item) => item.classList.remove("active"));
-          document.querySelectorAll(".tab-view").forEach((item) => item.classList.add("hidden"));
-          button.classList.add("active");
-          document.querySelector(`#${button.dataset.tab}`).classList.remove("hidden");
-        });
-      });
-
-      elements.loginForm.addEventListener("submit", login);
-      document.querySelector("#logout-btn").addEventListener("click", logout);
-      document
-        .querySelector("#stop-btn")
-        .addEventListener("click", () => setExamAction("STOP_EXAM"));
-      document
-        .querySelector("#continue-btn")
-        .addEventListener("click", () => setExamAction("CONTINUE"));
-      elements.studentForm.addEventListener("submit", saveStudent);
-      document.querySelector("#reset-student-btn").addEventListener("click", resetStudentForm);
-      elements.examForm.addEventListener("submit", saveExam);
-      document.querySelector("#reset-exam-btn").addEventListener("click", resetExamForm);
-
-      elements.studentsBody.addEventListener("click", async (event) => {
-        const editId = event.target.dataset.editStudent;
-        const deleteId = event.target.dataset.deleteStudent;
-        if (editId) {
-          const student = state.students.find((item) => item.student_id === editId);
-          elements.studentId.value = student.student_id;
-          elements.studentName.value = student.full_name || "";
-          elements.studentPassword.value = "";
-          elements.studentId.disabled = true;
-        }
-        if (deleteId && isAdmin()) {
-          await fetchJson(`/api/v1/admin/students/${encodeURIComponent(deleteId)}`, {
-            method: "DELETE",
-          });
-        }
-      });
-
-      elements.examsBody.addEventListener("click", async (event) => {
-        const editId = event.target.dataset.editExam;
-        const deleteId = event.target.dataset.deleteExam;
-        if (editId) {
-          const exam = state.exams.find((item) => item.exam_id === editId);
-          elements.examId.value = exam.exam_id;
-          elements.examTitle.value = exam.title || "";
-          elements.examStatus.value = exam.status;
-          elements.examId.disabled = true;
-        }
-        if (deleteId && isAdmin()) {
-          await fetchJson(`/api/v1/admin/exams/${encodeURIComponent(deleteId)}`, {
-            method: "DELETE",
-          });
-        }
-      });
-
-      showApp();
-      if (state.token) {
-        connectDashboardSocket();
-      }
+      document.querySelector("#refresh-btn").addEventListener("click", loadDashboard);
+      loadDashboard();
+      window.setInterval(loadDashboard, 5000);
     </script>
   </body>
 </html>

@@ -51,16 +51,16 @@ python proctoring_client.py \
 python proctoring_client.py --help
 ```
 
-## Backend dashboard
+## Backend API
 
-This branch also includes the member 3 server and proctor dashboard:
+This branch also includes the member 3 backend API:
 
 - `backend/main.py`: FastAPI server on port `7777`.
-- `frontend/index.html`: proctor dashboard on port `4444`.
-- SQLite storage for students, exams, monitoring clients, and cheating events.
-- Student JWT login, heartbeat, and alert APIs.
-- Proctor/admin JWT login with role-based permissions.
-- WebSocket realtime dashboard updates at `/ws/dashboard`.
+- `frontend/index.html`: lightweight monitoring dashboard on port `4444`.
+- SQLite storage for login attempts, heartbeat, and cheating events.
+- No admin login, no proctor login, no exam management, no WebSocket.
+- The client-facing contract is the 3 POST APIs from the report.
+- The dashboard uses one read-only endpoint, `GET /dashboard/data`, to show saved DB data.
 
 ### Run backend
 
@@ -77,31 +77,49 @@ python -m http.server 4444 --directory frontend
 
 Open `http://localhost:4444`.
 
-Demo proctor accounts:
-
-```text
-admin / admin123      role: ADMIN
-giamthi / giamthi123  role: PROCTOR
-```
-
-Demo student account for the client:
-
-```text
-B22DCCN123 / hashed_password_string
-```
-
-Core client APIs:
+### API contract
 
 - `POST /api/v1/auth/login`
 - `POST /api/v1/monitoring/heartbeat`
 - `POST /api/v1/monitoring/alerts`
 
-Core proctor/admin APIs:
+Dashboard-only read endpoint:
 
-- `POST /api/v1/proctors/login`
-- `GET /api/v1/monitoring/clients`
-- `GET /api/v1/monitoring/alerts`
-- `POST /api/v1/exams/{exam_id}/stop`
-- `POST /api/v1/exams/{exam_id}/continue`
-- `GET/POST/PUT/DELETE /api/v1/admin/students`
-- `GET/POST/PUT/DELETE /api/v1/admin/exams`
+- `GET /dashboard/data`
+
+#### Login
+
+```json
+{
+  "student_id": "B22DCCN123",
+  "password": "hashed_password_string"
+}
+```
+
+#### Heartbeat
+
+```json
+{
+  "student_id": "B22DCCN123",
+  "camera_front_status": "active",
+  "camera_side_status": "active",
+  "timestamp": "2026-04-21T08:30:15"
+}
+```
+
+#### Alert
+
+```json
+{
+  "student_id": "B22DCCN123",
+  "exam_id": "CS101_FINAL",
+  "camera_source": "SIDE_CAM",
+  "violation_type": "UNAUTHORIZED_ITEM",
+  "detected_objects": ["cell phone"],
+  "confidence_score": 0.92,
+  "timestamp": "2026-04-21T08:45:10",
+  "evidence_image_base64": "R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
+}
+```
+
+`exam_id` is accepted only because it is part of the report contract. The backend does not manage exams or make decisions based on exam records.
