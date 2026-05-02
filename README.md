@@ -1,93 +1,76 @@
-# Proctoring Client (Python)
+# Hệ thống phát hiện gian lận thi trực tuyến
 
-Client architecture is split into separate files in the `proctoring/` package:
-1. Data collection layer: `data_layer.py`
-2. AI inference layer: `ai_layer.py`
-3. Logic and evaluation layer: `logic_layer.py`
-4. Communication layer: `communication_layer.py`
-
-Additional modules:
-- Login flow: `auth_layer.py`
-- Preview UI: `display_layer.py`
-- App orchestration: `app.py`
-
-## Behavior configured for testing
-
-- Login flow is implemented but disabled by default.
-- Alerts are printed as JSON in terminal, not sent to server.
-- Heartbeat is printed as JSON in terminal every 10-20 seconds (default 15s), including front/side camera status.
-- UI shows two small camera screens in one window at top-right of the monitor.
-- YOLO defaults to `yolov8n.pt` (Nano). You can override via `--yolo-model`.
-
-Implemented rule groups from the latest scope update:
-- Group 1: Unauthorized items on side camera (phone/tablet, laptop, smartwatch/clock, book/document).
-- Group 2: Multiple people detection from both cameras.
-- Group 3: Camera occlusion (dark frame over threshold) and seat absence from both cameras.
-- Group 4: Abnormal gaze behavior (prolonged looking down, prolonged side looking, rapid gaze shifts).
-
-## Quick start
+## Cài đặt
 
 ```bash
 pip install -r requirements.txt
-python proctoring_client.py --side-source http://192.168.1.9:8080/
 ```
 
-Press `q` or `Esc` to exit.
+## Chạy backend
 
-## Enable login flow (optional)
-
-```bash
-python proctoring_client.py \
-  --side-source http://192.168.1.9:8080/ \
-  --enable-login \
-  --auth-url http://localhost:5000 \
-  --username test_user \
-  --password test_pass
-```
-
-## CLI options
+Backend chạy ở cổng `7777`.
 
 ```bash
-python proctoring_client.py --help
-```
-
-## Backend API
-
-This branch also includes the member 3 backend API:
-
-- `backend/main.py`: FastAPI server on port `7777`.
-- `frontend/index.html`: lightweight monitoring dashboard on port `4444`.
-- SQLite storage for login attempts, heartbeat, and cheating events.
-- No admin login, no proctor login, no exam management, no WebSocket.
-- The client-facing contract is the 3 POST APIs from the report.
-- The dashboard uses one read-only endpoint, `GET /dashboard/data`, to show saved DB data.
-
-### Run backend
-
-```bash
-pip install -r requirements.txt
 python -m uvicorn backend.main:app --host 0.0.0.0 --port 7777 --reload
 ```
 
-### Run dashboard
+## Chạy dashboard
+
+Dashboard chạy ở cổng `4444`.
 
 ```bash
 python -m http.server 4444 --directory frontend
 ```
 
-Open `http://localhost:4444`.
+Mở:
 
-### API contract
+```text
+http://localhost:4444
+```
 
-- `POST /api/v1/auth/login`
-- `POST /api/v1/monitoring/heartbeat`
-- `POST /api/v1/monitoring/alerts`
+Dashboard dùng để xem:
 
-Dashboard-only read endpoint:
+- heartbeat mới nhất từ các máy thí sinh,
+- danh sách cảnh báo vi phạm,
+- ảnh bằng chứng của từng cảnh báo.
 
-- `GET /dashboard/data`
+## Chạy client giám sát
 
-#### Login
+```bash
+python proctoring_client.py --side-source http://192.168.1.9:8080/
+```
+
+Thoát chương trình bằng phím `q` hoặc `Esc`.
+
+Xem các tham số hỗ trợ:
+
+```bash
+python proctoring_client.py --help
+```
+
+## Cấu trúc chính
+
+```text
+backend/main.py              Backend FastAPI
+frontend/index.html          Dashboard giám sát
+proctoring_client.py         File chạy client
+proctoring/data_layer.py     Lấy dữ liệu camera
+proctoring/ai_layer.py       Xử lý AI
+proctoring/logic_layer.py    Luật phát hiện vi phạm
+proctoring/communication_layer.py  Gửi heartbeat/cảnh báo
+```
+
+## API contract
+
+Backend chỉ cần nhận dữ liệu từ client và lưu vào SQLite.
+
+### 1. Đăng nhập
+
+```text
+POST /api/v1/auth/login
+```
+
+Request:
 
 ```json
 {
@@ -96,7 +79,26 @@ Dashboard-only read endpoint:
 }
 ```
 
-#### Heartbeat
+Response:
+
+```json
+{
+  "status": "success",
+  "message": "Dang nhap thanh cong",
+  "data": {
+    "token": "...",
+    "exam_id": "DEFAULT_EXAM"
+  }
+}
+```
+
+### 2. Heartbeat
+
+```text
+POST /api/v1/monitoring/heartbeat
+```
+
+Request:
 
 ```json
 {
@@ -107,7 +109,22 @@ Dashboard-only read endpoint:
 }
 ```
 
-#### Alert
+Response:
+
+```json
+{
+  "status": "success",
+  "server_action": "CONTINUE"
+}
+```
+
+### 3. Gửi cảnh báo vi phạm
+
+```text
+POST /api/v1/monitoring/alerts
+```
+
+Request:
 
 ```json
 {
@@ -122,4 +139,27 @@ Dashboard-only read endpoint:
 }
 ```
 
-`exam_id` is accepted only because it is part of the report contract. The backend does not manage exams or make decisions based on exam records.
+Response:
+
+```json
+{
+  "status": "success",
+  "message": "Da ghi nhan vi pham vao co so du lieu",
+  "alert_id": 1
+}
+```
+
+## API cho dashboard
+
+```text
+GET /dashboard/data
+```
+
+API này chỉ dùng để đọc dữ liệu đã lưu và hiển thị lên dashboard.
+
+## Lưu ý
+
+- Không có đăng nhập admin/giám thị.
+- Không quản lý kỳ thi.
+- Không dùng WebSocket.
+- File SQLite sinh ra ở `backend/exam_monitoring.db` và không commit lên Git.
