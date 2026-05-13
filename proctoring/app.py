@@ -24,6 +24,10 @@ class ProctoringClient:
         yolo_model: str,
         heartbeat_interval_sec: float,
         show_windows: bool,
+        server_url: Optional[str],
+        student_id: str,
+        student_password: str,
+        exam_id: str,
         login_config: Optional[LoginConfig] = None,
     ) -> None:
         side_sources = build_side_sources(side_source_url)
@@ -32,7 +36,13 @@ class ProctoringClient:
         self.side_cam = CameraStream(source=side_sources, name="side")
         self.ai = AIInferenceLayer(sample_fps=sample_fps, yolo_model=yolo_model)
         self.logic = LogicEvaluationLayer(absent_threshold_sec=5.0)
-        self.comm = TerminalCommunicationLayer(heartbeat_interval_sec=heartbeat_interval_sec)
+        self.comm = TerminalCommunicationLayer(
+            heartbeat_interval_sec=heartbeat_interval_sec,
+            server_url=server_url,
+            student_id=student_id,
+            student_password=student_password,
+            exam_id=exam_id,
+        )
         self.preview = TopRightPreview()
         self.show_windows = show_windows
         self._front_frame_ts: float = 0.0

@@ -40,6 +40,23 @@ Dashboard dùng để xem:
 python proctoring_client.py --side-source http://192.168.1.9:8080/
 ```
 
+Mặc định client gửi login, heartbeat và cảnh báo về:
+
+```text
+http://localhost:7777
+```
+
+Nếu cần đổi backend hoặc mã sinh viên:
+
+```bash
+python proctoring_client.py ^
+  --side-source http://192.168.1.9:8080/ ^
+  --server-url http://localhost:7777 ^
+  --student-id B22DCCN123 ^
+  --student-password hashed_password_string ^
+  --exam-id CS101_FINAL
+```
+
 Thoát chương trình bằng phím `q` hoặc `Esc`.
 
 Xem các tham số hỗ trợ:

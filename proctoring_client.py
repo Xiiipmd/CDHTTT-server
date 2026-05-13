@@ -24,6 +24,14 @@ def build_arg_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--heartbeat-sec", type=float, default=15.0, help="Heartbeat interval in seconds")
     parser.add_argument("--headless", action="store_true", help="Run without preview windows")
+    parser.add_argument("--server-url", default="http://localhost:7777", help="Backend base URL")
+    parser.add_argument("--student-id", default="B22DCCN123", help="Student ID sent to backend")
+    parser.add_argument(
+        "--student-password",
+        default="hashed_password_string",
+        help="Student password sent to backend login API",
+    )
+    parser.add_argument("--exam-id", default="DEFAULT_EXAM", help="Exam ID included in alert payloads")
 
     parser.add_argument("--enable-login", action="store_true", help="Enable login flow (disabled by default)")
     parser.add_argument("--auth-url", default=None, help="Authentication service base URL")
@@ -52,6 +60,10 @@ def main() -> None:
         yolo_model=args.yolo_model,
         heartbeat_interval_sec=args.heartbeat_sec,
         show_windows=not args.headless,
+        server_url=args.server_url,
+        student_id=args.student_id,
+        student_password=args.student_password,
+        exam_id=args.exam_id,
         login_config=login_config,
     )
     client.run()
